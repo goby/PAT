@@ -49,7 +49,9 @@ struct cmp_t{
 	}
 };
 
-bool cmp(cst l, cst r){return l.arrive < r.arrive;}
+bool cmp(cst l, cst r){
+    return l.arrive < r.arrive;
+}
 int tt[100]={0};
 const int ftime=540*60+1;
 int main()
@@ -67,14 +69,14 @@ int main()
         all.push_back(*t);
     }
     sort(ALL(all), cmp);
-    priority_queue<win, vector<win>,cmp_t> pq;
-    REP(i, K) pq.push(MP(i,0));
+    priority_queue<int, vector<int>,greater<int>> pq;
+    REP(i, K) pq.push(0);
     while(p < N && all[p].arrive < ftime){
-        win top = pq.top();
-        if(top.second >= ftime) break;
+        int top = pq.top();
         pq.pop();
-        total += (top.second <= all[p].arrive) ? 0 : top.second - all[p].arrive;
-        top.second += all[p].process;
+        if(top < all[p].arrive) top = all[p].arrive;/*IMPORTANT*/
+        total +=  top - all[p].arrive;
+        top += all[p].process;
         pq.push(top);
         p++;
     }

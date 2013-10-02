@@ -35,20 +35,37 @@
 #define S second
 using namespace std;
 
+#define SIZE 10001
 int num[201]={0};
 int fav[201]={0};
-int lst[10001]={0};
+int lst[SIZE]={0};
 int N,M,L;
-int backtracking(int start, int color){
-    int pivot=fav[color];
-    int cnt=0 ,max = 0;
-    REPP(i,start,L){
-        if (lst[i] == pivot) {
-            int tmp = (++cnt)+backtracking(i+1, color+1);
-            if(max < tmp) max = tmp;
+
+int lis(int len){
+    int max[SIZE+1], longest[SIZE+1];
+    max[1]=max[0]=lst[0];
+    REP(i, len){longest[i]=1;if(max[0] > lst[i]) max[0]=lst[i];}
+    max[0]--;
+    int maxLng = 1;
+    
+    REPP(i, 1, len){
+        int j = maxLng;
+        for (j=maxLng; j >=0; j--) {
+            if (lst[i] >= max[j]) {
+                longest[i]=j+1;
+                break;
+            }
+        }
+        if (longest[i] > maxLng) {
+            maxLng = longest[i];
+            max[maxLng]=lst[i];
+        }
+        else if(max[j] < lst[i] && lst[i] < max[j+1]){
+            max[j+1]=lst[i];
         }
     }
-    return max;
+    
+    return len == 0 ? 0 : maxLng;
 }
 
 int main()
@@ -56,11 +73,11 @@ int main()
     int tmp;
     RI(N);
     RI(M);
-    REP(i, M){RI(fav[i]);num[fav[i]]=1;}
+    REP(i, M){RI(fav[i]);num[fav[i]]=i+1;}
     RI(L);
-    REP(i,L) {RI(tmp);if(num[tmp]) lst[i]=tmp;}
-    
-    printf("%d", backtracking(0, 0));
+    int j = 0;
+    REP(i,L) {RI(tmp);if(num[tmp]) lst[j++]=num[tmp];}
+    printf("%d", lis(j));
     
     return 0;
 }

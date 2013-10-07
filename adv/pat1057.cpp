@@ -36,18 +36,32 @@
 #define S second
 using namespace std;
 
-#define SIZE 1000000
+#define SIZE 100001
+
+const int SECSIZE = SIZE/100;
 
 int data[SIZE];
 int dict[SIZE]={0};
+int secdict[SECSIZE] = {0};
+int medi[SIZE];
 
 int median(int len){
     len = (len+1)/2;
-    REP(i, SIZE){
-        len -= dict[i];
-        if(len <= 0)
-            return i;
+    int seci = -1;
+    REP(i, SECSIZE){
+        len -= secdict[i];
+        if(len <= 0) {
+            len+=secdict[i];
+            seci = i;
+            break;
+        }
     }
+    REP(k, 100){
+        len -= dict[seci* 100 + k];
+        if(len <= 0)
+            return seci* 100 + k;
+    }
+    
     return 0;
 }
 
@@ -55,7 +69,6 @@ int main()
 {
     int i=0;
     char cmd[11];
-    int m=-1;
     DRI(N);
     REP(k, N){
         RS(cmd);
@@ -64,7 +77,8 @@ int main()
             data[i] = key;
             i++;
             dict[key]++;
-            if(i) m=median(i);
+            secdict[key/100]++;
+            medi[i]=median(i);
         }
         else if(i <= 0){
             printf("Invalid\n");
@@ -72,11 +86,11 @@ int main()
         else if(cmd[2]=='p'){
             i--;
             dict[data[i]]--;
+            secdict[data[i]/100]--;
             printf("%d\n",data[i]);
-            if(i) m=median(i);
         }
         else{
-            printf("%d\n",m);
+            printf("%d\n",medi[i]);
         }
     }
     return 0;

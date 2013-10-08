@@ -10,12 +10,15 @@
 #include<algorithm>
 #include<iostream>
 #include<queue>
+#include<stack>
 #include<functional>
 #define SZ(X) ((int)(X).size())
 #define ALL(X) (X).begin(), (X).end()
 #define REP(I, N) for (int I = 0; I < (N); ++I)
+#define RREP(I, N) for (int I = (N) - 1; I >= 0; --I)
 #define REPP(I, A, B) for (int I = (A); I < (B); ++I)
 #define REPC(I, C) for (int I = 0; !(C); ++I)
+#define REPCC(I,A, C) for (int I = (A); !(C); ++I)
 #define RI(X) scanf("%d", &(X))
 #define RII(X, Y) scanf("%d%d", &(X), &(Y))
 #define RIII(X, Y, Z) scanf("%d%d%d", &(X), &(Y), &(Z))
@@ -33,29 +36,70 @@
 #define S second
 using namespace std;
 
-#define SIZE 100
-int result[SIZE];
-int level[SIZE];
-bool child[SIZE];
+#define SIZE 101
+bool relative[SIZE][SIZE];
+
+/*
+ test case:
+ 6 2
+ 01 2 02 03
+ 02 2 04 05
+ 
+ 1 0
+ 
+ */
+
 int main()
 {
-    DRII(N, M);
-    MS1(level);
-    MS0(child);
-    int max = 0;
+    int father,childnum, child, levelcount=0, total=0;
+    queue<int> qq;
+    bool isdescendant[SIZE];
+    bool nonleave[SIZE];
+    bool first=true;
+    MS0(relative);
+    MS0(nonleave);
+    MS0(isdescendant);
+    DRII(N,M);
     REP(i, M){
-        DRII(cur, childnum);
-        cur--;
-        if(level[cur]<0)level[cur]=0;
-        child[cur]=true;
+        RII(father, childnum);
+        nonleave[father]=true;
         REP(j, childnum){
-            DRI(child);
-            child--;
-            level[child]=level[cur]+1;
-            if(max < level[child]) max=level[child];
+            RI(child);
+            relative[father][child]=true;
+            isdescendant[child]=true;
         }
     }
-    REP(i,N) if(!child[i]) result[level[i]]++;
-    REP(i,max) printf("%d ",result[i]);
-    printf("%d", result[max]);
+    total = N - M;
+    REP(i, N){
+        if(!isdescendant[i+1]){
+            qq.push(i+1);
+            if(!nonleave[i+1])
+                levelcount++;
+        }
+    }
+    qq.push(-levelcount);
+    levelcount=0;
+    while (!qq.empty() && total) {
+        int cur=qq.front();
+        qq.pop();
+        if(cur > 0 && nonleave[cur]){
+            REP(i, N){
+                if(relative[cur][i+1]) {
+                    qq.push(i+1);
+                    if(!nonleave[i+1])
+                        levelcount++;
+                }
+                    
+            }
+        }
+        else if(cur <= 0){
+            qq.push(-levelcount);
+            total += cur;
+            if(!first) printf(" %d", -cur);
+            else {printf("%d", -cur);first=false;}
+            levelcount=0;
+        }
+    }
+    
+    return 0;
 }

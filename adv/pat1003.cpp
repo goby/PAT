@@ -10,12 +10,16 @@
 #include<algorithm>
 #include<iostream>
 #include<queue>
+#include<stack>
+#include<limits.h>
 #include<functional>
 #define SZ(X) ((int)(X).size())
 #define ALL(X) (X).begin(), (X).end()
 #define REP(I, N) for (int I = 0; I < (N); ++I)
+#define RREP(I, N) for (int I = (N) - 1; I >= 0; --I)
 #define REPP(I, A, B) for (int I = (A); I < (B); ++I)
 #define REPC(I, C) for (int I = 0; !(C); ++I)
+#define REPCC(I,A, C) for (int I = (A); !(C); ++I)
 #define RI(X) scanf("%d", &(X))
 #define RII(X, Y) scanf("%d%d", &(X), &(Y))
 #define RIII(X, Y, Z) scanf("%d%d%d", &(X), &(Y), &(Z))
@@ -33,63 +37,82 @@
 #define S second
 using namespace std;
 
-#define SIZE 500
-#define INF 1000000
-long teams[SIZE];
-long adjs[SIZE][SIZE];
-long dist[SIZE];
-int pres[SIZE];
-long rest[SIZE];
-typedef pair<int, int> Pair;
-struct cmp
-{    // functor for operator>
-    bool operator()(const Pair& _Left, const Pair& _Right) const
-    {
-        return (_Left.second > _Right.second);
-    }
-};
-int main()
-{
-    DRII(N, E);
-    DRII(start, end);
-    REP(i, N){
-        RI(teams[i]);
-    }
-    REP(i, E){
-        int v, u, w;
-        RIII(v, u, w);
-        adjs[v][u] = adjs[u][v] = w;
-    }
+#define SIZE 501
+int rel[SIZE][SIZE];
 
-    MS1(pres);
-    REP(i, N) dist[i] = INF;
-    MS0(rest);
+vector<int> dist;
+vector<int> pred[SIZE];
+int teams[SIZE];
 
-    dist[start] = 0;
-    rest[start] = teams[start];
-    priority_queue<Pair, vector<Pair>, cmp> pq;
-    vector<int> S;
-    
-    REP(i, N) pq.push(MP(i, dist[i]));
 
-    while(!pq.empty()) {
-        int u = pq.top().first;
-        pq.pop();
-        S.push_back(u);
-        REP(i, N){
-            if(adjs[i][u] != 0 )  {
-                if(dist[i] > dist[u] + adjs[u][i]){
-                    dist[i] = dist[u] + adjs[u][i];
-                    pres[i] = u;
-                    rest[i] = rest[u] + teams[i];
+void dijkstra(int n, int s, int end){
+    dist.assign(n, INT_MAX);
+    vector<bool> visited(n);
+    dist[s] = 0;
+    while(true){
+        int u = -1;
+        int sd = INT_MAX;
+        REP(i, n){
+            if (!visited[i] && dist[i] < sd) {
+                sd = dist[i];
+                u = i;
+            }
+        }
+        if(u == -1) break;
+        
+        visited[u] = true;
+        REP(i, n) {
+            if(i != u && rel[i][u] >= 0){
+                long newLen = rel[i][u];
+                newLen += dist[u];
+                if(newLen < dist[i]){
+                    dist[i] = newLen;
+                    pred[i].clear();
+                    pred[i].push_back(u);
                 }
-                else if((dist[i] == dist[u] + adjs[u][i]) && (rest[i] < rest[u] + teams[i])) {
-                    rest[i] = rest[u] + teams[i];
+                else if(newLen == dist[i]){
+                    pred[i].push_back(u);
                 }
             }
         }
     }
-    printf("%d %d", dist[end], rest[end]);
+}
 
+long dfs(int start, int end,int &num){
+    if(start == end) {
+        num++;
+        return teams[end];
+    }
+    long max = 0;
+    long ret = 0;
+    int size = pred[end].size();
+    REP(i, size){
+        ret = dfs(start, pred[end][i], num);
+        ret += teams[end];
+        if(ret > max) {
+            max = ret;
+        }
+    }
+    
+    return max;
+}
+
+int main()
+{
+    int c0, c1, d;
+    DRII(N,M);
+    DRII(start, end);
+    MS1(rel);
+    REP(i,N) RI(teams[i]);
+    REP(i,M) {
+        RIII(c0, c1, d);
+        rel[c0][c1] = rel[c1][c0] = d;
+    }
+    
+    int num = 0; long max = 0;
+    
+    dijkstra(N, start, end);
+    max = dfs(start, end, num);
+    printf("%d %ld", num, max);
     return 0;
 }

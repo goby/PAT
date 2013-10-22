@@ -37,7 +37,7 @@
 #define S second
 using namespace std;
 
-char digit[20];
+/*此题为1049*/
 
 int main()
 {

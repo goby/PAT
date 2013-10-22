@@ -37,50 +37,58 @@
 #define S second
 using namespace std;
 
-struct cmp_t: binary_function<char const *, char const *, bool> {
-public:
-    bool operator()(char const *left, char const *right) const{
-        return  strcmp(left, right) < 0;
-    }
-};
+const int NUM = 26 * 26 * 26 * 10 + 1;
 
-typedef map<char const *, vector<int>, cmp_t> Map;
+int dict[NUM];
 
-void insert(Map& m, char * name, int course){
-    auto it = m.find(name);
-    if(it == m.end()){
-        vector<int> v;
-        v.push_back(course);
-        m.insert(MP(name, v));
-    }
-    else{
-        it->second.push_back(course);
-    }
+vector<vector<int>> course;
+
+int hashchar(const char * str){
+    return ((str[0] - 'A') * 26 * 26 * 10 +
+            (str[1] - 'A') * 26 * 10 +
+            (str[2] - 'A') * 10 +
+            str[3] - '0');
 }
 
-Map dict;
+
 
 int main()
 {
+    char name[5];
     DRII(N,M);
+    MS1(dict);
     REP(i, M){
         DRII(id, num);
         REP(j, num){
-            char *name = new char[5];
             RS(name);
-            insert(dict, name, id);
+            int idx = hashchar(name);
+            if(dict[idx] < 0){
+                dict[idx] = course.size();
+                vector<int> *v = new vector<int>;
+                v->push_back(id);
+                course.push_back(*v);
+            }
+            else{
+                course[dict[idx]].push_back(id);
+            }
         }
     }
     
     char query[5];
+    int idx, size;
     while(scanf("%s", query) != EOF){
-        auto v = dict[query];
-        int size = v.size();
-        printf("%s %d", query, size);
-        sort(ALL(v));
-        REP(i, size){
-            printf(" %d", v[i]);
+        printf("%s", query);
+        idx = dict[hashchar(query)];
+        size = 0;
+        if(idx >= 0){
+            size = course[idx].size();
+            sort(ALL(course[idx]));
         }
+        printf(" %d", size);
+        REP(j, size){
+            printf(" %d", course[idx][j]);
+        }
+        
         printf("\n");
     }
     

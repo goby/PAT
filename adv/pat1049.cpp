@@ -37,6 +37,8 @@
 #define S second
 using namespace std;
 
+/*此题为1048*/
+
 #define SIZE 1000
 
 int coin[SIZE] = {0};

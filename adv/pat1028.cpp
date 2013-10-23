@@ -36,18 +36,28 @@
 #define F first
 #define S second
 using namespace std;
-
 typedef struct {
-    string field[3];
+    int id;
+    char name[10];
+    int score;
 } Student;
+
 
 template <int i>
 bool cmp(Student left, Student right){
     if(i == 0)
-        return left.field[0] < right.field[0];
-    if(left.field[i] == right.field[i])
-        return left.field[0] < right.field[0];
-    return left.field[i] < right.field[i];
+        return left.id < right.id;
+    if(i == 1) {
+        int res = strcmp(left.name, right.name);
+        if(res == 0)
+            return left.id < right.id;
+        return res < 0;
+    }
+    else {
+        if(left.score == right.score)
+            return left.id < right.id;
+        return left.score < right.score;
+    }
 }
 
 vector<Student> students;
@@ -57,7 +67,7 @@ int main()
     DRII(N, C);
     REP(i, N){
         Student s;
-        cin >> s.field[0] >> s.field[1] >> s.field[2];
+        cin >> s.id >> s.name >> s.score;
         students.push_back(s);
     }
     switch (C) {
@@ -75,6 +85,6 @@ int main()
     }
     
     for (auto it = students.begin(); it != students.end(); it++) {
-        printf("%s %s %s\n", it->field[0].c_str(), it->field[1].c_str(), it->field[2].c_str());
+        printf("%06d %s %d\n", it->id, it->name, it->score);
     }
 }

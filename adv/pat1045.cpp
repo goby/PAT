@@ -10,6 +10,8 @@
 #include<algorithm>
 #include<iostream>
 #include<queue>
+#include<stack>
+#include<limits.h>
 #include<functional>
 #define SZ(X) ((int)(X).size())
 #define ALL(X) (X).begin(), (X).end()
@@ -26,6 +28,7 @@
 #define DRIII(X, Y, Z) int X, Y, Z; scanf("%d%d%d", &X, &Y, &Z)
 #define RS(X) scanf("%s", (X))
 #define CASET int ___T, case_n = 1; scanf("%d ", &___T); while (___T-- > 0)
+#define OUTREPEAT() static int __repeat_time=0; printf("%d\n", __repeat_time++);
 #define MP make_pair
 #define PB push_back
 #define MS0(X) memset((X), 0, sizeof((X)))
@@ -35,49 +38,40 @@
 #define S second
 using namespace std;
 
-#define SIZE 10001
-int num[201]={0};
-int fav[201]={0};
-int lst[SIZE]={0};
-int N,M,L;
+#define SIZE 201
 
-int lis(int len){
-    int max[SIZE+1], longest[SIZE+1];
-    max[1]=max[0]=lst[0];
-    REP(i, len){longest[i]=1;if(max[0] > lst[i]) max[0]=lst[i];}
-    max[0]--;
-    int maxLng = 1;
-    
-    REPP(i, 1, len){
-        int j = maxLng;
-        for (j=maxLng; j >=0; j--) {
-            if (lst[i] >= max[j]) {
-                longest[i]=j+1;
-                break;
-            }
-        }
-        if (longest[i] > maxLng) {
-            maxLng = longest[i];
-            max[maxLng]=lst[i];
-        }
-        else if(max[j] < lst[i] && lst[i] < max[j+1]){
-            max[j+1]=lst[i];
-        }
-    }
-    
-    return len == 0 ? 0 : maxLng;
-}
+int color[SIZE];
+int maxArray[SIZE] = {0};
+
+vector<int> seq;
 
 int main()
 {
-    int tmp;
-    RI(N);
-    RI(M);
-    REP(i, M){RI(fav[i]);num[fav[i]]=i+1;}
-    RI(L);
-    int j = 0;
-    REP(i,L) {RI(tmp);if(num[tmp]) lst[j++]=num[tmp];}
-    printf("%d", lis(j));
-    
+    int in, tmp;
+    MS1(color);
+    DRI(N);
+    DRI(M);
+    REP(i,M){
+        RI(in);
+        color[in] = i;
+    }
+    DRI(L);
+    REP(i, L){
+        RI(in);
+        if(color[in] >= 0) {
+            seq.push_back(color[in]);
+            tmp = 0;
+            for (int k = color[in]; k >= 0; k--) {
+                if(tmp < maxArray[k]) tmp=maxArray[k];
+            }
+            maxArray[color[in]]= tmp+1;
+        }
+    }
+    tmp = 0;
+    REP(i, SIZE){
+        if(tmp < maxArray[i])
+            tmp = maxArray[i];
+    }
+    printf("%d", tmp);
     return 0;
 }

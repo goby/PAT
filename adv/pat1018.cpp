@@ -47,22 +47,32 @@ vector<int> dist;
 bool visited[SIZE];
 int route[SIZE], tmpRoute[SIZE];
 
-int minium = INT_MAX;
 int length = SIZE;
 int Cmax;
+int sendTo=INT_MAX, takeBack=INT_MAX;
+
 void dfs(int start,int end, int cost, int level){
+    tmpRoute[level] = end;
     if(start == end){
-        int m = level * (Cmax/2) - cost;
-        if(abs(minium) > abs(m) || (m > 0 && m == -minium)){
-            minium = m;
-            memcpy(route, tmpRoute, level * sizeof(int));
-            length=level;
+        int m = 0, tmp = 0, perfect = Cmax / 2, st, tb;
+        RREP(i,level){
+            tmp += cc[tmpRoute[i]] - perfect;
+            if(tmp < 0) { m -= tmp;tmp = 0; }
         }
+        st = m;
+        tb = cost + st - level * (Cmax/2);
+        
+        if(st < sendTo || (st == sendTo && tb < takeBack)){
+            sendTo = st;
+            takeBack = tb;
+            memcpy(route, tmpRoute, level*sizeof(int));
+            length = level;
+        }
+        
         return;
     }
     int size = pred[end].size();
     REP(i, size){
-        tmpRoute[level] = pred[end][i];
         dfs(start, pred[end][i], cost + cc[pred[end][i]], level+1);
     }
 }
@@ -116,17 +126,13 @@ int main()
     
     dfs(0, target, cc[target], 0);
 
-    int sendTo=0, takeBack=0;
-    if(minium>0) sendTo=minium;
-    else takeBack=-minium;
-    
-    printf("%d ", sendTo);
+    printf("%d 0", sendTo);
     
     while(length--){
-        printf("%d->", route[length]);
+        printf("->%d", route[length]);
     }
     
-    printf("%d %d",target, takeBack);
+    printf(" %d", takeBack);
     
     return 0;
 }
